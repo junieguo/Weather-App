@@ -1,0 +1,5 @@
+//
+//  WeatherInfo.swift
+//  Weather App
+//
+
