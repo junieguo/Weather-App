@@ -5,7 +5,7 @@
 
 import Foundation
 
-struct Location: Identifiable, Codable, Equatable {
+struct Location: Identifiable, Codable, Hashable {
     let lat: Double
     let lon: Double
     let display_name: String
@@ -20,7 +20,6 @@ struct Location: Identifiable, Codable, Equatable {
         case address
     }
 
-    // Convert string lat/lon to Double on decode
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let latString = try container.decode(String.self, forKey: .lat)
@@ -32,10 +31,11 @@ struct Location: Identifiable, Codable, Equatable {
     }
 }
 
-struct Address: Codable, Equatable {
+struct Address: Codable, Hashable {
     let city: String?
     let county: String?
     let state: String?
     let country: String?
     let country_code: String?
 }
+
