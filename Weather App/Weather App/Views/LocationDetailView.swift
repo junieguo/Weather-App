@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct LocationDetailView: View {
     let location: Location
@@ -69,6 +70,9 @@ struct LocationDetailView: View {
                         .foregroundColor(.red)
                         .frame(maxWidth: .infinity)
                 }
+
+                // ✅ Add map view here
+                MapView(latitude: location.latitude, longitude: location.longitude)
 
                 Spacer()
             }
