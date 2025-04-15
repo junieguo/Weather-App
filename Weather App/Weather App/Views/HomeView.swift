@@ -29,8 +29,6 @@ struct HomeView: View {
                 TextField("Enter city or address", text: $query)
                     .textFieldStyle(.roundedBorder)
                     .padding(.horizontal)
-                    .autocorrectionDisabled()
-                    .textInputAutocapitalization(.words)
 
                 HStack {
                     Button("Search") {
@@ -40,7 +38,14 @@ struct HomeView: View {
                     .disabled(!isValidQuery(query))
 
                     Button("Use Current Location") {
-                        locationManager.requestLocation()
+                        locationManager.requestLocation { locationQuery in
+                            if let locationQuery = locationQuery, !locationQuery.contains("denied") {
+                                query = locationQuery
+                                Task { await searchLocation() }
+                            } else {
+                                errorMessage = locationQuery
+                            }
+                        }
                     }
                     .buttonStyle(.bordered)
                 }
@@ -84,15 +89,6 @@ struct HomeView: View {
             .navigationDestination(item: $selectedLocation) { location in
                 LocationDetailView(location: location)
             }
-            .onChange(of: locationManager.currentQuery) { newQuery in
-                query = newQuery
-                Task { await searchLocation() }
-            }
-            .onChange(of: locationManager.errorMessage) { err in
-                if let err = err {
-                    errorMessage = err
-                }
-            }
         }
     }
 
@@ -109,7 +105,7 @@ struct HomeView: View {
             if let location = try await APIService.fetchLocation(query: query) {
                 selectedLocation = location
             } else {
-                errorMessage = "No matching location found. Try another search."
+                errorMessage = "No matching location found."
             }
         } catch {
             errorMessage = "Search failed: \(error.localizedDescription)"
@@ -118,3 +114,4 @@ struct HomeView: View {
         isLoading = false
     }
 }
+
