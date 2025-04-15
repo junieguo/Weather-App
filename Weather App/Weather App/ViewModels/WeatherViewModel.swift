@@ -15,27 +15,21 @@ class WeatherViewModel: ObservableObject {
         loadFavorites()
     }
 
-    /// Add a location to favorites (no duplicates)
     func addFavorite(_ location: Location) {
         guard !favorites.contains(location) else { return }
         favorites.append(location)
         saveFavorites()
     }
 
-    /// Remove a location from favorites
     func removeFavorite(_ location: Location) {
         favorites.removeAll { $0.lat == location.lat && $0.lon == location.lon }
         saveFavorites()
     }
 
-    /// Check if location is already in favorites
     func isFavorited(_ location: Location) -> Bool {
         return favorites.contains(where: { $0.lat == location.lat && $0.lon == location.lon })
     }
 
-    // MARK: - Persistence
-
-    /// Save the favorites list to a local JSON file
     private func saveFavorites() {
         let url = getFileURL()
         do {
@@ -46,7 +40,6 @@ class WeatherViewModel: ObservableObject {
         }
     }
 
-    /// Load favorites from JSON file if it exists
     private func loadFavorites() {
         let url = getFileURL()
         do {
@@ -58,10 +51,8 @@ class WeatherViewModel: ObservableObject {
         }
     }
 
-    /// File URL for saving favorites.json
     private func getFileURL() -> URL {
         let directory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
         return directory.appendingPathComponent(saveFilename)
     }
 }
-
