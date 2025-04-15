@@ -26,7 +26,6 @@ class APIService {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("WeatherApp/1.0 (contact@example.com)", forHTTPHeaderField: "User-Agent")
         
-        // Add rate limiting delay
         try await Task.sleep(nanoseconds: 1_000_000_000)
         
         let (data, response) = try await URLSession.shared.data(for: request)

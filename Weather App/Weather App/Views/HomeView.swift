@@ -21,15 +21,33 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
+            VStack(spacing: 16) {
                 Text("Weather App")
                     .font(.largeTitle)
                     .bold()
+                    .padding(.top)
 
-                TextField("Enter city or address", text: $query)
-                    .textFieldStyle(.roundedBorder)
-                    .padding(.horizontal)
+                ZStack {
+                    TextField("Enter city or address", text: $query)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.horizontal)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.words)
 
+                    HStack {
+                        Spacer()
+                        if !query.isEmpty {
+                            Button(action: {
+                                query = ""
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(.gray)
+                                    .padding(.trailing, 40)
+                            }
+                        }
+                    }
+                }
+                
                 HStack {
                     Button("Search") {
                         Task { await searchLocation() }
@@ -49,6 +67,7 @@ struct HomeView: View {
                     }
                     .buttonStyle(.bordered)
                 }
+                .padding(.horizontal)
 
                 if isLoading {
                     ProgressView()

@@ -71,7 +71,6 @@ struct LocationDetailView: View {
                         .frame(maxWidth: .infinity)
                 }
 
-                // ✅ Add map view here
                 MapView(latitude: location.latitude, longitude: location.longitude)
 
                 Spacer()

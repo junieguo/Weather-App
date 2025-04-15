@@ -36,7 +36,7 @@ class WeatherViewModel: ObservableObject {
             let data = try JSONEncoder().encode(favorites)
             try data.write(to: url, options: [.atomic, .completeFileProtection])
         } catch {
-            print("❌ Failed to save favorites: \(error)")
+            print("Failed to save favorites: \(error)")
         }
     }
 
@@ -47,7 +47,7 @@ class WeatherViewModel: ObservableObject {
             favorites = try JSONDecoder().decode([Location].self, from: data)
         } catch {
             favorites = []
-            print("ℹ️ No saved favorites found or failed to load: \(error.localizedDescription)")
+            print("No saved favorites found or failed to load: \(error.localizedDescription)")
         }
     }
 

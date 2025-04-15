@@ -38,7 +38,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("❌ Location error: \(error.localizedDescription)")
+        print("Location error: \(error.localizedDescription)")
         completion?("Failed to get location.")
     }
 
@@ -55,7 +55,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         let geocoder = CLGeocoder()
         geocoder.reverseGeocodeLocation(location) { placemarks, error in
             if let error = error {
-                print("❌ Reverse geocode error: \(error)")
+                print("Reverse geocode error: \(error)")
                 self.completion?("Reverse geocoding failed.")
                 return
             }
@@ -68,7 +68,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             let city = placemark.locality ?? ""
             let state = placemark.administrativeArea ?? ""
             let query = [city, state].filter { !$0.isEmpty }.joined(separator: ", ")
-            print("📍 Resolved location: \(query)")
+            print("Resolved location: \(query)")
             self.completion?(query)
         }
     }
