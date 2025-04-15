@@ -7,11 +7,13 @@ import SwiftUI
 
 struct HomeView: View {
     @EnvironmentObject var viewModel: WeatherViewModel
+    @StateObject private var locationManager = LocationManager()
+
     @State private var query: String = ""
     @State private var selectedLocation: Location?
     @State private var isLoading: Bool = false
     @State private var errorMessage: String?
-    
+
     private func isValidQuery(_ query: String) -> Bool {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         return !trimmed.isEmpty && trimmed.count >= 2
@@ -30,13 +32,18 @@ struct HomeView: View {
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.words)
 
-                Button("Search") {
-                    Task {
-                        await searchLocation()
+                HStack {
+                    Button("Search") {
+                        Task { await searchLocation() }
                     }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!isValidQuery(query))
+
+                    Button("Use Current Location") {
+                        locationManager.requestLocation()
+                    }
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.borderedProminent)
-                .disabled(!isValidQuery(query))
 
                 if isLoading {
                     ProgressView()
@@ -46,11 +53,10 @@ struct HomeView: View {
                 if let error = errorMessage {
                     Text(error)
                         .foregroundColor(.red)
-                        .padding()
+                        .padding(.horizontal)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .background(Color.red.opacity(0.1))
                         .cornerRadius(8)
-                        .padding(.horizontal)
                 }
 
                 List {
@@ -78,6 +84,15 @@ struct HomeView: View {
             .navigationDestination(item: $selectedLocation) { location in
                 LocationDetailView(location: location)
             }
+            .onChange(of: locationManager.currentQuery) { newQuery in
+                query = newQuery
+                Task { await searchLocation() }
+            }
+            .onChange(of: locationManager.errorMessage) { err in
+                if let err = err {
+                    errorMessage = err
+                }
+            }
         }
     }
 
@@ -85,32 +100,21 @@ struct HomeView: View {
         isLoading = true
         errorMessage = nil
         
-        print("Starting search for: '\(query)'")
-        
         do {
             guard isValidQuery(query) else {
                 errorMessage = "Please enter at least 2 characters"
                 return
             }
-            
+
             if let location = try await APIService.fetchLocation(query: query) {
-                print("Successfully found location: \(location.displayName)")
                 selectedLocation = location
             } else {
-                errorMessage = "No matching location found. Please try a different search term."
-                print("No locations found for query: '\(query)'")
+                errorMessage = "No matching location found. Try another search."
             }
-        } catch URLError.badURL {
-            errorMessage = "Invalid search query"
-            print("Bad URL error")
-        } catch URLError.badServerResponse {
-            errorMessage = "Server error. Please try again later."
-            print("Server response error")
         } catch {
-            errorMessage = "Failed to fetch location. Please check your connection."
-            print("Search error: \(error.localizedDescription)")
+            errorMessage = "Search failed: \(error.localizedDescription)"
         }
-        
+
         isLoading = false
     }
 }
