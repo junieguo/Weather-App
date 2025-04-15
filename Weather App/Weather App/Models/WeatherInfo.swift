@@ -6,37 +6,41 @@
 import Foundation
 
 struct WeatherInfo: Decodable {
-    let hourly_units: HourlyUnits
-    let data: WeatherData
-
+    let latitude: Double
+    let longitude: Double
+    let hourlyUnits: HourlyUnits
+    let hourly: HourlyData
+    
     enum CodingKeys: String, CodingKey {
-        case hourly_units
-        case data = "hourly"
+        case latitude
+        case longitude
+        case hourlyUnits = "hourly_units"
+        case hourly
+    }
+    
+    func currentWeatherIndex() -> Int? {
+        let now = Date()
+        let dateFormatter = ISO8601DateFormatter()
+        
+        for (index, timeString) in hourly.time.enumerated() {
+            if let date = dateFormatter.date(from: timeString),
+               Calendar.current.isDate(date, equalTo: now, toGranularity: .hour) {
+                return index
+            }
+        }
+        return nil
     }
 }
 
 struct HourlyUnits: Decodable {
-    let temperature: String
+    let temperature_2m: String
     let precipitation_probability: String
     let precipitation: String
-
-    enum CodingKeys: String, CodingKey {
-        case temperature = "temperature_2m"
-        case precipitation_probability
-        case precipitation
-    }
 }
 
-struct WeatherData: Decodable {
-    let time: [Date]
-    let temperature: [Double]
+struct HourlyData: Decodable {
+    let time: [String]
+    let temperature_2m: [Double]
     let precipitation_probability: [Int]
     let precipitation: [Double]
-
-    enum CodingKeys: String, CodingKey {
-        case time
-        case temperature = "temperature_2m"
-        case precipitation_probability
-        case precipitation
-    }
 }
